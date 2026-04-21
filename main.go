@@ -206,8 +206,8 @@ func main() {
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
-	log.Println("BLACKSAUCE running on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Println("BLACKSAUCE running on 0.0.0.0:8080")
+	log.Fatal(http.ListenAndServe("0.0.0.0:8080", nil))
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
