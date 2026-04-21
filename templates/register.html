@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - BLACKSAUCE</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #00ff41;
+        }
+        .container {
+            width: 400px;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+        }
+        h1 { text-align: center; margin-bottom: 30px; text-shadow: 0 0 10px #00ff41; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #888; }
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #111;
+            border: 1px solid #333;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+        }
+        input:focus { outline: none; border-color: #00ff41; }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            border: 2px solid #00ff41;
+            color: #00ff41;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn:hover { background: #00ff41; color: #000; }
+        .error { color: #ff4444; margin-bottom: 15px; text-align: center; }
+        .link { text-align: center; margin-top: 20px; }
+        .link a { color: #888; text-decoration: none; }
+        .link a:hover { color: #00ff41; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>REGISTER</h1>
+        {{if .error}}<p class="error">{{.error}}</p>{{end}}
+        <form method="POST" action="/register">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit" class="btn">Create Account</button>
+        </form>
+        <p class="link"><a href="/login">Already have an account?</a></p>
+        <p class="link"><a href="/">Back to Home</a></p>
+    </div>
+</body>
+</html>

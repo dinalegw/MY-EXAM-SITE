@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - BLACKSAUCE</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #00ff41;
+        }
+        .nav {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px 40px;
+            border-bottom: 2px solid #00ff41;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav h1 { font-size: 1.5em; }
+        .nav .user { color: #888; }
+        .nav a { color: #00ff41; text-decoration: none; margin-left: 20px; }
+        .container {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .welcome {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff41;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: #00ff41;
+        }
+        .card:hover {
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+        .card h2 { font-size: 1.5em; margin-bottom: 10px; }
+        .card p { color: #888; }
+        .notice {
+            background: rgba(255, 170, 0, 0.1);
+            border: 1px solid #ffaa00;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #ffaa00;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <h1>BLACKSAUCE</h1>
+        <div>
+            <span class="user">{{.username}}</span>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="welcome">
+            <h2>Welcome, {{.username}}!</h2>
+            <p>Select an option below to continue</p>
+        </div>
+        
+        <div class="notice">
+            Activity logging is enabled. All actions are recorded.
+        </div>
+        
+        <div class="cards">
+            <a href="/terminal" class="card">
+                <h2>Terminal</h2>
+                <p>Test and run your code</p>
+            </a>
+            <div class="card" onclick="alert('Activity log coming soon')">
+                <h2>My Activity</h2>
+                <p>View your activity history</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

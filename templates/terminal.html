@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal - BLACKSAUCE</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #00ff41;
+        }
+        .nav {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px 40px;
+            border-bottom: 2px solid #00ff41;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav h1 { font-size: 1.5em; }
+        .nav .user { color: #888; }
+        .nav a { color: #00ff41; text-decoration: none; margin-left: 20px; }
+        .container {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .terminal-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .editor, .output {
+            background: #0a0a0a;
+            border: 2px solid #00ff41;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .panel-header {
+            background: rgba(0, 255, 65, 0.1);
+            padding: 15px;
+            border-bottom: 1px solid #333;
+            font-weight: bold;
+        }
+        .editor textarea {
+            width: 100%;
+            height: 400px;
+            background: #0a0a0a;
+            color: #00ff41;
+            border: none;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: none;
+        }
+        .editor textarea:focus { outline: none; }
+        .output-content {
+            height: 400px;
+            padding: 15px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            color: #ccc;
+        }
+        .run-btn {
+            background: transparent;
+            border: 2px solid #00ff41;
+            color: #00ff41;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+        .run-btn:hover {
+            background: #00ff41;
+            color: #000;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+        }
+        .logging-notice {
+            background: rgba(255, 170, 0, 0.1);
+            border: 1px solid #ffaa00;
+            padding: 10px;
+            margin-bottom: 20px;
+            color: #ffaa00;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <h1>BLACKSAUCE</h1>
+        <div>
+            <span class="user">{{.username}}</span>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="terminal-header">
+            <h2>Code Terminal</h2>
+            <button class="run-btn" onclick="runCode()">Run Code</button>
+        </div>
+        
+        <div class="logging-notice">
+            Your code execution is being logged. All activities are monitored and recorded.
+        </div>
+        
+        <div class="terminal-container">
+            <div class="editor">
+                <div class="panel-header">// Write your Go code here</div>
+                <textarea id="code" placeholder="func main() {
+    fmt.Println(&quot;Hello, World!&quot;)
+}"></textarea>
+            </div>
+            <div class="output">
+                <div class="panel-header">Output</div>
+                <div class="output-content" id="output">Ready to execute...</div>
+            </div>
+        </div>
+        
+        <div class="status" id="status"></div>
+    </div>
+    
+    <script>
+        let lastClipboard = '';
+        setInterval(() => {
+            navigator.clipboard.readText().then(text => {
+                if (text && text !== lastClipboard && text.length > 0) {
+                    lastClipboard = text;
+                    fetch('/activity-log', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: 'action=clipboard_paste&details=' + encodeURIComponent('Pasted ' + text.length + ' characters: ' + text.substring(0, 100))
+                    });
+                }
+            }).catch(() => {});
+        }, 1000);
+        
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                fetch('/activity-log', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: 'action=tab_switch&details=User switched tabs or minimized window'
+                });
+            }
+        });
+        
+        window.addEventListener('blur', () => {
+            fetch('/activity-log', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'action=window_blur&details=User left the window'
+            });
+        });
+        
+        let codeChangeCount = 0;
+        let lastCode = '';
+        document.getElementById('code').addEventListener('input', function() {
+            const newCode = this.value;
+            if (lastCode && newCode.length > lastCode.length) {
+                const pastedChars = newCode.length - lastCode.length;
+                if (pastedChars > 1) {
+                    fetch('/activity-log', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: 'action=bulk_paste&details=' + encodeURIComponent('Bulk paste: ' + pastedChars + ' characters')
+                    });
+                }
+            }
+            lastCode = newCode;
+        });
+        
+        async function runCode() {
+            const code = document.getElementById('code').value;
+            const output = document.getElementById('output');
+            const status = document.getElementById('status');
+            
+            output.textContent = 'Executing...';
+            status.textContent = '';
+            
+            try {
+                const formData = new FormData();
+                formData.append('code', code);
+                
+                const response = await fetch('/run', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    output.textContent = 'Error:\n' + result.error;
+                    output.style.color = '#ff4444';
+                } else {
+                    output.textContent = result.output || 'No output';
+                    output.style.color = '#ccc';
+                }
+                
+                status.textContent = 'Executed at ' + new Date().toLocaleTimeString();
+            } catch (err) {
+                output.textContent = 'Failed to execute: ' + err.message;
+                output.style.color = '#ff4444';
+            }
+        }
+        
+        document.getElementById('code').addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+        });
+    </script>
+</body>
+</html>
