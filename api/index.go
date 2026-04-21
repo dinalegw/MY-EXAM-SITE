@@ -13,6 +13,10 @@ import (
 	"time"
 )
 
+func main() {
+	http.HandleFunc("/", Handler)
+}
+
 type User struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
