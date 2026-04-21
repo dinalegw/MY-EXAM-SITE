@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -189,7 +188,6 @@ func doregister(w http.ResponseWriter, r *http.Request) {
 
 	id := len(users) + 1
 	users[u] = User{ID: id, Username: u, Hash: hashpwd(p)}
-	users[strconv.Itoa(id)] = User{ID: id, Username: u, Hash: hashpwd(p)}
 	userMu.Unlock()
 
 	fmt.Fprint(w, loginHTML("Registered! Login now."))

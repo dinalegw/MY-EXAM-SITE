@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/csv"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -83,14 +84,51 @@ func logact(user, action, details string) {
 }
 
 func saveCSV() {
-	f, _ := os.Create("activities.csv")
+	f, err := os.Create("activities.csv")
+	if err != nil {
+		return
+	}
 	defer f.Close()
 	w := csv.NewWriter(f)
 	w.Write([]string{"ID", "Username", "Action", "Details", "Time"})
 	for _, a := range activities {
-		w.Write([]string{fmt.Sprintf("%d", a.ID), a.Username, a.Action, a.Details, a.Time.Format(time.RFC3339)})
+		w.WriteAll([][]string{{fmt.Sprintf("%d", a.ID), a.Username, a.Action, a.Details, a.Time.Format(time.RFC3339)}})
 	}
 	w.Flush()
+}
+
+func saveUsers() {
+	userMu.RLock()
+	defer userMu.RUnlock()
+	var data []User
+	for _, u := range users {
+		if u.Username != "" {
+			data = append(data, u)
+		}
+	}
+	f, err := os.Create("users.json")
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	json.NewEncoder(f).Encode(data)
+}
+
+func loadUsers() {
+	f, err := os.Open("users.json")
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	var data []User
+	if err := json.NewDecoder(f).Decode(&data); err != nil {
+		return
+	}
+	userMu.Lock()
+	defer userMu.Unlock()
+	for _, u := range data {
+		users[u.Username] = u
+	}
 }
 
 func loadCSV() {
@@ -144,6 +182,7 @@ func isadmin(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func main() {
+	loadUsers()
 	loadCSV()
 	tmpl = template.Must(template.ParseGlob("templates/*.html"))
 
@@ -230,6 +269,7 @@ func doregister(w http.ResponseWriter, r *http.Request) {
 	users[u] = User{ID: len(users) + 1, Username: u, Hash: hashpwd(p), CreatedAt: time.Now()}
 	userMu.Unlock()
 
+	saveUsers()
 	logact(u, "register", "New user registered")
 	tmpl.ExecuteTemplate(w, "login.html", map[string]string{"success": "Registered! Login now."})
 }
@@ -294,8 +334,9 @@ func runGo(code string) (string, string) {
 	if err != nil {
 		return "", err.Error()
 	}
-	f.WriteString("package main\n\nimport \"fmt\"\n\n")
+	f.WriteString("package main\n\nimport \"fmt\"\n\n\n")
 	f.WriteString(code)
+	f.WriteString("\n")
 	f.Close()
 	defer os.Remove(tmp)
 

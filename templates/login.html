@@ -58,7 +58,7 @@
         <h1>LOGIN</h1>
         {{if .error}}<p class="error">{{.error}}</p>{{end}}
         {{if .success}}<p class="success">{{.success}}</p>{{end}}
-        <form method="POST" action="/login">
+        <form method="POST" action="/dologin">
             <div class="form-group">
                 <label>Username</label>
                 <input type="text" name="username" required>
