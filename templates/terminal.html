@@ -104,7 +104,7 @@
     <div class="nav">
         <h1>BLACKSAUCE</h1>
         <div>
-            <span class="user">{{.username}}</span>
+            <span class="user"><%= username %></span>
             <a href="/dashboard">Dashboard</a>
             <a href="/logout">Logout</a>
         </div>
@@ -121,10 +121,8 @@
         
         <div class="terminal-container">
             <div class="editor">
-                <div class="panel-header">// Write your Go code here</div>
-                <textarea id="code" placeholder="func main() {
-    fmt.Println(&quot;Hello, World!&quot;)
-}"></textarea>
+                <div class="panel-header">// Write your JavaScript code here</div>
+                <textarea id="code" placeholder="console.log('Hello, World!');</textarea>
             </div>
             <div class="output">
                 <div class="panel-header">Output</div>
@@ -141,7 +139,7 @@
             navigator.clipboard.readText().then(text => {
                 if (text && text !== lastClipboard && text.length > 0) {
                     lastClipboard = text;
-                    fetch('/activity-log', {
+                    fetch('/logact', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                         body: 'action=clipboard_paste&details=' + encodeURIComponent('Pasted ' + text.length + ' characters: ' + text.substring(0, 100))
@@ -152,7 +150,7 @@
         
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
-                fetch('/activity-log', {
+                fetch('/logact', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                     body: 'action=tab_switch&details=User switched tabs or minimized window'

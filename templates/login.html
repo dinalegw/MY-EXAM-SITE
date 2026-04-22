@@ -56,8 +56,8 @@
 <body>
     <div class="container">
         <h1>LOGIN</h1>
-        {{if .error}}<p class="error">{{.error}}</p>{{end}}
-        {{if .success}}<p class="success">{{.success}}</p>{{end}}
+        <% if (typeof error !== 'undefined' && error) { %><p class="error"><%= error %></p><% } %>
+        <% if (typeof success !== 'undefined' && success) { %><p class="success"><%= success %></p><% } %>
         <form method="POST" action="/dologin">
             <div class="form-group">
                 <label>Username</label>

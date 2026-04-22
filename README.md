@@ -1,22 +1,31 @@
 # BLACKSAUCE
 
-A Go-based secure code testing platform with user authentication, admin panel, and code execution capabilities.
+A Node.js-based secure code testing platform with user authentication, admin panel, and code execution capabilities.
 
 ## Features
 
 - User registration and login
 - Admin panel for managing users
-- Terminal for code execution (Go)
+- Terminal for code execution (JavaScript)
 - Activity logging
-- Clipboard and tab-switch monitoring
+- Session-based authentication
 
 ## Quick Start (Local)
 
 ```bash
-go run main.go
+npm install
+npm start
 ```
 
 Open http://localhost:8080
+
+## Dependencies
+
+- Node.js
+- Express.js
+- Express-session
+- EJS (for templating)
+- Crypto, fs, path, child_process (built-in)
 
 **Default Admin:**
 - Username: `admin`

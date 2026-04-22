@@ -55,7 +55,7 @@
 <body>
     <div class="container">
         <h1>REGISTER</h1>
-        {{if .error}}<p class="error">{{.error}}</p>{{end}}
+        <% if (typeof error !== 'undefined' && error) { %><p class="error"><%= error %></p><% } %>
         <form method="POST" action="/doregister">
             <div class="form-group">
                 <label>Username</label>
